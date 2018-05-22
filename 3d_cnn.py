@@ -38,8 +38,8 @@ class ConvPool3dLayer(object):
         
         # conv tampoco funciona el shape y es...<class 'theano.tensor.var.TensorVariable'>
         conv = T.nnet.conv3d2d.conv3d(
-            signals = self.input,
-            filters = self.W,
+            signals = self.input,#( batch_size, time, in_channels, height, width )
+            filters = self.W,#( num_of_filters, flt_time, in_channels, flt_height, flt_width)
             signals_shape = None,
             filters_shape = filter_shape,
             border_mode = 'valid')              
