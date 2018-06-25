@@ -130,6 +130,11 @@ class wrap_3dfcn(object):
             #1er array([64,  3,  1,  5,  5]) shared
             #2nd array([64,  3, 64,  3,  3])
             #3er array([64,  1, 64,  3,  3])
+
+
+
+
+
             #4   array([150,   2,  64,   2,   2])
             #5   array([  2,   1, 150,   1,   1])
             b = params[layer_counter*2+1]
