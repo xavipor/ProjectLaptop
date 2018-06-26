@@ -11,10 +11,17 @@ import cPickle,h5py
 from lib.max_pool import max_pool_3d
 from lib.relu import relu
 from lib.load_mat import load_mat,sharedata
+import RMSprop.py
 floatX = theano.config.floatX
 
+class myConvPool3dLayer(object):
+	def __init(self,input,W,b,filter_shape,poolsize=None,activation=relu):
 
-def model (X):
+		self.input = input
+		self.W = theano.shared(numpy.asarray(W,dtype = theano.config.floatX),borrow=True,)
+		self.b = 
+
+def model (X,W):
     
 	model_path = '../model/fine_tuned_params_step2.pkl'
 	f_param = open(model_path,'r')
