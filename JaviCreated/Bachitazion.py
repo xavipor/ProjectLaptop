@@ -38,9 +38,9 @@ class Bachitazion(object):
             patch= aux.reshape(self.myShape)
             patch = patch.transpose(2,0,1)
             if "WO" in element:
-                auxY = np.array([0,1])
-            else:
                 auxY = np.array([1,0])
+            else:
+                auxY = np.array([0,1])
             
             X[i,:,0,:,:]=patch
             Y[i,:]=auxY

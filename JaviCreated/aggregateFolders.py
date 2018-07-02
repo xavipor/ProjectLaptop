@@ -32,8 +32,7 @@ def aggregateFolders(path = "/home/javier/Documents/DOCUMENTOS/Microbleeds/GoDAR
         #onlyfiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
         folders = [int(x) for x in listdir(normalOnes)]
         folders.sort()
-        folders[2],folders[15]=folders[15],folders[2] #to balance the number of Microbleeds around 10 in average
-        foldersTrain = folders[:int(len(folders)/2)]
+        foldersTrain = folders[:19]
         
         
         if not os.path.exists(resultPathTrain):
