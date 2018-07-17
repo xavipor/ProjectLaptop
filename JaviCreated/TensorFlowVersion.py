@@ -5,7 +5,8 @@ import cPickle
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import pdb
-import Bachitazion
+from Bachitazion import Bachitazion
+import pickle
 
 
 
@@ -13,7 +14,12 @@ import Bachitazion
 ##data_path = whole_volume_path + str(74) + '.mat'
 #data_set = np.transpose(np.array(h5py.File(data_path)['patchFlatten']))
 #image =  data_set.reshape((data_set.shape[0],10,16,16,1))
-
+def save_to_file(filename, object):
+    """ Save object to file
+    """
+    f = open(filename + '.pckl', 'wb')
+    pickle.dump(object, f)
+    f.close()
 
 def createPlaceHolders(n_H,n_W,n_C,n_D,n_Y):
     """
@@ -91,6 +97,8 @@ def computeCost(Z5,Y):
 #Let it like this and call this function with **parameters should be fine....
 #def forward_propagation(X, W_L0,b_L0,W_L1,b_L1,W_L2,b_L2,W_L3,b_L3,W_L4,b_L4):
 def forward_propagation(X,parameters):
+    #This could have been done better defininf a Customized Convolution Layer and the same for flatten layer. 
+    #I mean, the result is the same but is more structured. 
 
     W_L0 = parameters["W0"]
     b_L0 = parameters["b0"]
@@ -143,34 +151,57 @@ def forward_propagation(X,parameters):
 
 
 
+def train(learning_rate=0.001,num_epochs = 50):
 
-myBatchGenerator = Bachitazion(sizeOfBatch=128,pathT='/home/jdominguezmartinez/pruebas/Microbleeds/cmb-3dcnn-code-v1.0/demo/data/AllPatchesWithMicrobleedsTrain')
-num_minibatches = myBatchGenerator.number_batchesT
+    myBatchGenerator = Bachitazion(sizeOfBatch=128,pathT='/home/jdominguezmartinez/pruebas/Microbleeds/cmb-3dcnn-code-v1.0/demo/data/AllPatchesWithMicrobleedsTrain/')
+    err_val={}
+    acc_val={}
+
+    X, Y = createPlaceHolders(16,16,1,10,2)
+    parameters = initializeWeights()
+    Z5 = forward_propagation(X,parameters)
+    cost = computeCost(Z5, Y)
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
+     # Calculate the correct predictions
+    correctPrediction = tf.equal(tf.argmax(Z5,1), tf.argmax(Y,1))
+    # Calculate accuracy on the test set
+    accuracy = tf.reduce_mean(tf.cast(correctPrediction, "float"))
+    #print ("Train Accuracy:", accuracy.eval({X: X_train, Y: Y_train}))
+    init = tf.initialize_all_variables()
+
+    with tf.Session() as sess:   
+        sess.run(init)
+        for epoch in range(num_epochs):
+
+            trainingCost = 0.
+            trainingAcc = 0.
+            for batch in range(int(myBatchGenerator.number_batchesT)+1):
+                miniX,miniY = myBatchGenerator.nextBatch_T()
+                _ , batchTrainingCost,batchTrainingAcc = sess.run([optimizer, cost,accuracy], feed_dict={X: miniX, Y: miniY})
+                trainingCost += batchTrainingCost
+                trainingAcc += batchTrainingAcc
+            trainingCost /= myBatchGenerator.number_batchesT
+            trainingAcc /= myBatchGenerator.number_batchesT
+
+            print("End of epoch {0:02d}: err(train) = {1:.2f} acc(train) = {2:.2f}".format(epoch+1,trainingCost,trainingAcc))
 
 
 
-X, Y = createPlaceHolders(16,16,1,10,2)
-parameters = initializeWeights()
-Z5 = forward_propagation(X,parameters)
-cost = computeCost(Z5, Y)
-optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
-init = tf.initialize_all_variables()
+            evalCost = 0.
+            evalAcc = 0.
+            for batch in range(int(myBatchGenerator.number_batchesE)+1):
+                miniX,miniY = myBatchGenerator.nextBatch_E()
+                batchEvalCost,batchEvalAcc = sess.run([cost,accuracy], feed_dict={X: miniX, Y: miniY})
+                evalCost += batchEvalCost
+                evalAcc += batchEvalAcc
+            evalCost /= myBatchGenerator.number_batchesE
+            evalAcc /= myBatchGenerator.number_batchesE
 
-with tf.Session() as sess:   
-    sess.run(init)
-    for epoch in range(2):
-
-        epoch_cost = 0.
-
-        for batch in range(num_minibatches+1):
-            miniX,miniY = myBatchGenerator.next_batchT()
-            _ , minibatch_cost = sess.run([optimizer, cost], feed_dict={X: miniX, Y: miniY})
-            epoch_cost += minibatch_cost / num_minibatches
-            
-
-    
-
-    print(c,v)
+            print("                 err(eval) = {1:.2f} acc(eval) = {2:.2f}".format(epoch+1,evalCost,evalAcc))
+            err_val[epoch + 1] = evalCost
+            acc_val[epoch + 1] = evalAcc
     sess.close()
+    save_to_file("FileToPlotCost",err_val)
+    save_to_file("FileToPlotEval",acc_val)
 
-
+train()

@@ -87,7 +87,7 @@ def aggregateFolders(path = "/home/javier/Documents/DOCUMENTOS/Microbleeds/GoDAR
             shuffle(elementsWO)
             start=0
             myend=0
-            myend= len(listdir(f))
+            myend= 1.5*len(listdir(f))   ############################################OJOOOOOOOOOOOOO MODIFICACIÓN AQUI, VOY A PONER MAS NO MICRBOLEEDS *1.5 en el len de esta linea
             #We are goign to see the number of microbleeds patches that we already have, and we are going to seek 
             #for the same number in the WOmicrobleeds folder. We are going to shuffle it before move the files. 
             #see that npw I am moving not copying the images. 
